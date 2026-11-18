@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        node: [18, 20, 22]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Syntax
+        shell: bash
+        run: for f in lib/*.mjs bin/*.mjs hooks/*.mjs test/*.mjs; do node --check "$f"; done
+      - name: Manifests are valid JSON
+        shell: bash
+        run: |
+          for f in .claude-plugin/plugin.json .claude-plugin/marketplace.json hooks/hooks.json package.json; do
+            node -e "JSON.parse(require('fs').readFileSync('$f','utf8'))"
+          done
+      - name: Tests
+        run: node test/smoke.mjs
+      - name: Rule demo runs
+        run: node bin/secretguard.mjs test
+      - name: Scanning this repo finds no real secrets
+        run: node bin/secretguard.mjs scan .

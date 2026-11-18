@@ -1,0 +1,17 @@
+{
+  "description": "secretguard: stop credentials reaching the model's context",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Read|Write|Edit|MultiEdit|NotebookRead|Bash|PowerShell|Grep|Glob",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/pre-tool-use.mjs\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

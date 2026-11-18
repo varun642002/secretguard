@@ -1,0 +1,17 @@
+{
+  "name": "@varun642002/secretguard",
+  "version": "1.0.0",
+  "description": "Stop Claude Code reading secrets into its context. A PreToolUse hook that blocks .env files, private keys and credential-shaped content before they reach the transcript.",
+  "type": "module",
+  "license": "MIT",
+  "author": "varun642002",
+  "bin": { "secretguard": "bin/secretguard.mjs" },
+  "homepage": "https://github.com/varun642002/secretguard",
+  "repository": { "type": "git", "url": "https://github.com/varun642002/secretguard.git" },
+  "bugs": { "url": "https://github.com/varun642002/secretguard/issues" },
+  "engines": { "node": ">=18" },
+  "scripts": { "test": "node test/smoke.mjs" },
+  "keywords": ["claude", "claude-code", "security", "secrets", "credentials", "hooks", "plugin", "scanner"],
+  "files": ["bin", "lib", "hooks", ".claude-plugin", "README.md", "LICENSE"],
+  "dependencies": {}
+}

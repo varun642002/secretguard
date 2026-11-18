@@ -1,0 +1,7 @@
+{
+  "name": "secretguard",
+  "description": "Stops Claude Code reading secrets into its context. Blocks .env files, private keys and credential-shaped content before they reach the transcript.",
+  "version": "1.0.0",
+  "keywords": ["security", "secrets", "hooks", "credentials", "claude-code"],
+  "license": "MIT"
+}

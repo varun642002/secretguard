@@ -126,6 +126,31 @@ check("ignores short values and plain numbers", () => {
   eq(findSecrets("TIMEOUT_SECRET=12345678").length, 0, "numeric");
 });
 
+check("ignores TypeScript that merely mentions token or secret", () => {
+  // Every one of these was a real false positive found by scanning a live
+  // TypeScript repo: 50 hits across 1640 files, all of them code.
+  for (const s of [
+    "async function loadProfile(uid: string, email: string, idToken: string): Promise<View>",
+    "const tokens = tokenise(raw).filter((t) => t !== '|');",
+    "export function parseNumberToken(token: string): number | null {",
+    "const anyIn = (tokens: string[], list: string[]) => tokens.some(",
+    "const token = String(req.query.token || '');",
+    "const [doc] = await db.select({ token: documents.token }).from(documents)",
+    "export function parsePayToken(rawToken: string): { source: PaySource; id: string }",
+    "# GEMINI_API_KEY: required for Gemini AI API calls.",
+    "interface Props { accessToken: string; refreshToken: string }",
+    "let apiKey: string | undefined = undefined;",
+  ]) {
+    eq(findSecrets(s).length, 0, `false positive on: ${s}`);
+  }
+});
+
+check("still catches an env-style assignment with a real value", () => {
+  ok(findSecrets('DATABASE_PASSWORD="hunter2RealValue"').length, "missed UPPER_SNAKE secret");
+  ok(findSecrets("STRIPE_SECRET_KEY=abcdefghijklmnop").length, "missed unquoted");
+  ok(findSecrets('API_KEY: "s0meRealLookingValue"').length, "missed colon form");
+});
+
 check("ignores ordinary prose and code", () => {
   for (const s of [
     "the secret sauce is good documentation",

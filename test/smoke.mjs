@@ -4,7 +4,7 @@ import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { findSecrets, redact, matchSecretPath } from "../lib/patterns.mjs";
-import { inspectToolCall, pathsInCommand } from "../lib/inspect.mjs";
+import { inspectToolCall, pathsInCommand, segments, stripHeredocs } from "../lib/inspect.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const HOOK = join(HERE, "..", "hooks", "pre-tool-use.mjs");
@@ -194,6 +194,29 @@ check("blocks shell commands that print secrets", () => {
   ok(blocks("Bash", { command: "cat ~/.ssh/id_rsa" }), "cat key");
   ok(blocks("Bash", { command: "head -5 secrets.json" }), "head secrets");
   ok(blocks("Bash", { command: "printenv | grep KEY" }), "env dump");
+});
+
+check("a reader elsewhere does not implicate an unrelated path", () => {
+  // Both of these were real over-blocks hit while using the plugin: the
+  // command only inspects git metadata, but contained `head`/`cat` in another
+  // segment and the word .env somewhere else.
+  ok(!blocks("Bash", { command: "git ls-files --error-unmatch .env; git log | head -4" }), "git + head");
+  ok(!blocks("Bash", { command: "git check-ignore -v .env && ls | head -2" }), "check-ignore + head");
+  ok(!blocks("Bash", { command: "echo .env >> .gitignore" }), "writing the name, not reading");
+});
+
+check("a heredoc body is data, not a file read", () => {
+  // Writing a commit message that merely mentions .env was blocked, because
+  // the command contained `cat <<EOF` and the word .env.
+  const cmd = "git commit -m \"$(cat <<'EOF'\nThe sixth finding was .env, already ignored.\nEOF\n)\"";
+  ok(!blocks("Bash", { command: cmd }), "heredoc mentioning .env");
+});
+
+check("still blocks a reader actually pointed at a secret", () => {
+  ok(blocks("Bash", { command: "cat .env" }), "cat .env");
+  ok(blocks("Bash", { command: "git status && cat .env" }), "second segment");
+  ok(blocks("Bash", { command: "cat .env | grep KEY" }), "piped");
+  ok(blocks("Bash", { command: "head -5 ~/.ssh/id_rsa" }), "head on a key");
 });
 
 check("allows ordinary shell commands", () => {

@@ -74,7 +74,7 @@ connection-string passwords, and generic `SECRET=`/`PASSWORD=` assignments.
 ## 🧪 Try it before trusting it
 
 ```bash
-npx @varun642002/secretguard test
+npx github:varun642002/secretguard test
 ```
 
 ```text
@@ -91,17 +91,17 @@ npx @varun642002/secretguard test
 Audit a repo for what's already exposed:
 
 ```bash
-npx @varun642002/secretguard scan .
+npx github:varun642002/secretguard scan .
 ```
 
 Check or clean a single string:
 
 ```bash
-npx @varun642002/secretguard check "token=ghp_abc123..."
+npx github:varun642002/secretguard check "token=ghp_abc123..."
 ```
 
 ```bash
-npx @varun642002/secretguard redact "$(cat some-log.txt)"
+npx github:varun642002/secretguard redact "$(cat some-log.txt)"
 ```
 
 Exit codes: `0` clean, `1` findings, `2` usage error — so `scan` works in CI.

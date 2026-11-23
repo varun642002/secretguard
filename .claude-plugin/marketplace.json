@@ -1,14 +1,21 @@
 {
   "name": "secretguard",
   "description": "Stop credentials reaching Claude's context",
-  "owner": { "name": "varun642002" },
+  "owner": {
+    "name": "varun642002"
+  },
   "plugins": [
     {
       "name": "secretguard",
       "description": "Stops Claude Code reading secrets into its context. Blocks .env files, private keys and credential-shaped content before they reach the transcript.",
       "version": "1.0.0",
       "source": "./",
-      "license": "MIT"
+      "license": "MIT",
+      "author": {
+        "name": "Varun S.",
+        "url": "https://github.com/varun642002"
+      },
+      "homepage": "https://github.com/varun642002/secretguard"
     }
   ]
 }
